@@ -21,15 +21,15 @@ server.get('/api/users', (req, res) => {
 
 server.post('/api/users', (req, res) => {
     const userInfo = req.body;
+    const {name, bio} = req.body;
+
+    if (!name || !bio) {
+        res.status(400).json({errorMessage: 'Please provide name and bio for user.'})
+    }
 
     db.insert(userInfo)
         .then((user) => {
-            if (user) {
-                res.status(201).json({success: true, user});
-            } else {
-                res.status(400).json({errorMessage: 'Please provide name and bio for user.'})
-            }
-            
+            res.status(201).json({success: true, user});                       
         })
         .catch((err) => {
             res.status(500).json({success: false, err});
@@ -54,6 +54,7 @@ server.get('/api/users/:id', (req, res) => {
 
 server.delete('/api/users/:id', (req, res) => {
     const {id} = req.params;
+    
 
     db.remove(id)
         .then(deleteUser => {
@@ -70,17 +71,22 @@ server.delete('/api/users/:id', (req, res) => {
 
 server.put('/api/users/:id', (req, res) => {
     const id = req.params.id;
-    const userInfo = req.body;
+    const userInfo = req.body;    
+    const {name, bio} = req.body;
+
+    if (!name || !bio) {
+        res.status(400).json({errorMessage: 'Please provide name and bio for user.'})
+    }
 
     db.update(id, userInfo)
+
         .then(user => {
-            if (user) {
+            if(user) {
                 res.status(200).json({success: true, user});
-            } else if (!id) {
-                res.status(404).json({success: false, message:'The user with the specified ID does not exist'})
             } else {
-                res.status(400).json({success: false, message:'Please provide name and bio for the user.'})
+                res.status(404).json({message:'The user with the specified ID does not exist'}) 
             }
+            
         })
         .catch(err => {
             res.status(500).json({success: false, err})
