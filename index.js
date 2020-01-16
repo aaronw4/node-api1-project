@@ -15,7 +15,7 @@ server.get('/api/users', (req, res) => {
             res.status(200).json(users);
         })
         .catch(err => {
-            res.status(500).json({success: false, err});
+            res.status(500).json({success: false, errorMassage: 'The users information could not be retrieved'});
         });
 });
 
@@ -41,10 +41,14 @@ server.get('/api/users/:id', (req, res) => {
 
     db.findById(id)
         .then(user => {
-            res.status(200).json(user);
+            if (user) {
+                res.status(200).json(user);
+            } else {
+                res.status(404).json({message: 'The user with the specified ID does not exist'})
+            }            
         })
         .catch(err => {
-            res.status(500).json({success: false, err});
+            res.status(500).json({success: false, errorMessage:'The user information could not be retrieved'});
         });
 });
 
@@ -56,11 +60,11 @@ server.delete('/api/users/:id', (req, res) => {
             if (deleteUser) {
                 res.status(204).end();
             } else {
-                res.status(404).json({messsage: 'id not found'});
+                res.status(404).json({messsage: 'The user with the specified ID does not exist.'});
             }
         })
         .catch(err => {
-            res.status(500).json({success:false, err});
+            res.status(500).json({success:false, errorMessage:'The user could not be removed'});
         });
 });
 
@@ -72,8 +76,10 @@ server.put('/api/users/:id', (req, res) => {
         .then(user => {
             if (user) {
                 res.status(200).json({success: true, user});
+            } else if (!id) {
+                res.status(404).json({success: false, message:'The user with the specified ID does not exist'})
             } else {
-                res.status(404).json({success: false, message:'id not found'});
+                res.status(400).json({success: false, message:'Please provide name and bio for the user.'})
             }
         })
         .catch(err => {
