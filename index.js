@@ -24,7 +24,12 @@ server.post('/api/users', (req, res) => {
 
     db.insert(userInfo)
         .then((user) => {
-            res.status(201).json({success: true, user});
+            if (user) {
+                res.status(201).json({success: true, user});
+            } else {
+                res.status(400).json({errorMessage: 'Please provide name and bio for user.'})
+            }
+            
         })
         .catch((err) => {
             res.status(500).json({success: false, err});
